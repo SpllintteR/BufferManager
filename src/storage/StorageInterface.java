@@ -1,33 +1,75 @@
 package storage;
 
-public class StorageInterface {
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class StorageInterface {
 	
-	public int pinCount;
 	public int ultimoAcesso = 0;
-	public CachedBuffer[] cache = new CachedBuffer[10];
+	public List<CachedBuffer> cache = new ArrayList<>();
+	RandomAccessFile file;
 	
-	public char[] loadpage(int page){
-		CachedBuffer cached = findCached(page);
+	public StorageInterface() {
+		try{
+			file = new RandomAccessFile(new File("input.txt"), "rws");
+		}catch(Throwable e){
+			//faz nada
+		}
+	}
+	
+	public byte[] loadpage(int page) throws IOException{
+		CachedBuffer cached = procuraNoCache(page);
 		if (cached != null){
-			cached.addPinCount();
 			return cached.getBuffer();
 		}
-		return null;
-	}
-
-	public void savepage(int page, char[] data){
-		if(ultimoAcesso == 10){
-			if (cache[ultimoAcesso].isDirt()){
-				//TODO: deveria salvar esse cached
-			}
-			//TODO: retira esse cara do cache e cria o novo de acordo com os 2 algoritmos(LRU e MRU)
-		}
-		cache[ultimoAcesso] = new CachedBuffer(data, page);
-		ultimoAcesso++;
+		byte[] newCached = findInFile(page);
+		addInCache(newCached, page);
+		return newCached;
 	}
 	
-	public void changepage(int page, char[] data ){
-		findCached(page).dirt(data);
+	abstract int escolheItemQueVaiRetirar();
+
+	private void addInCache(byte[] data, int page) throws IOException {
+		if(cache.size() == 10){
+			int pageRemover = escolheItemQueVaiRetirar();
+			savepage(pageRemover, new byte[]{}); //TODO: verificar o new byte
+			cache.remove(pageRemover);
+		}
+		cache.add(new CachedBuffer(data, page));
+	}
+
+	private byte[] findInFile(int page) throws IOException {
+		byte[] result = new byte[128];
+		file.read(result, page*128, 128);
+		return result;
+	}
+
+	public void savepage(int page, byte[] data) throws IOException{
+		CachedBuffer findCached = procuraNoCache(page);
+		if (findCached.getPinCount() > 0){
+			throw new RuntimeException("deu zica");
+		}
+		if (findCached.isDirt()){
+			saveToFile(page, findCached.getBuffer());
+		}
+	}
+	
+	private void saveToFile(int page, byte[] buffer) throws IOException {
+		file.write(buffer, page*128, 128);
+	}
+
+	public void changepage(int page, byte[] data ){
+		CachedBuffer findCached = procuraNoCache(page);
+		if (findCached == null){
+			//TODO: - Verificar se nesse caso vai carregar do disco ou o que vai fazer
+		}
+		if(findCached.getPinCount() > 0){
+			throw new RuntimeException("deu zica");
+		}
+		findCached.dirt(data);
 	}
 	
 	public void listaPages(){
@@ -36,7 +78,7 @@ public class StorageInterface {
 		}
 	}
 	
-	private CachedBuffer findCached(int page) {
+	private CachedBuffer procuraNoCache(int page) {
 		for(CachedBuffer cb: cache){
 			if(cb.getPage() == page){
 				return cb;

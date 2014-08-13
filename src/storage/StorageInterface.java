@@ -8,15 +8,16 @@ import java.util.List;
 
 public abstract class StorageInterface {
 	
-	public int ultimoAcesso = 0;
 	public List<CachedBuffer> cache = new ArrayList<>();
 	RandomAccessFile file;
+	private int size;
 	
 	public StorageInterface() {
 		try{
+			size = 10;
 			file = new RandomAccessFile(new File("input.txt"), "rws");
 		}catch(Throwable e){
-			//faz nada
+			e.printStackTrace();
 		}
 	}
 	
@@ -30,11 +31,11 @@ public abstract class StorageInterface {
 		return newCached;
 	}
 	
-	abstract int escolheItemQueVaiRetirar();
+	abstract CachedBuffer escolheItemQueVaiRetirar(StorageInterface storage);
 
 	private void addInCache(byte[] data, int page) throws IOException {
 		if(cache.size() == 10){
-			int pageRemover = escolheItemQueVaiRetirar();
+			int pageRemover = escolheItemQueVaiRetirar(this).getPage();
 			savepage(pageRemover, new byte[]{}); //TODO: verificar o new byte
 			cache.remove(pageRemover);
 		}
@@ -85,6 +86,15 @@ public abstract class StorageInterface {
 			}
 		}
 		return null;
+	}
+	
+	public int getSize()
+	{
+		return size;
+	}
+	
+	public CachedBuffer getPage(int indice){
+		return cache.get(indice);
 	}
 	
 }

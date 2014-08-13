@@ -12,7 +12,7 @@ public class Main {
 	 */
 	public static void main(String[] args) throws FileNotFoundException {
 		File file = new File("input.txt");
-		StorageInterface storage = new StorageInterface();
+		
 		if (!file.exists()) throw new FileNotFoundException("Arquivo não encontrado, insira um arquivo válido");
 		Scanner scanner = new Scanner(file);
 		try {
@@ -23,7 +23,7 @@ public class Main {
 					throw new RuntimeException("Tentando ler bloco com mais de 128 bytes");
 				}
 				char[] chars = next.toCharArray();
-				storage.savepage(i, chars);
+				StorageInterface.savepage(i, chars);
 				i++;
 			}
 		} finally {

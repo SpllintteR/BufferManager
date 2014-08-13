@@ -1,17 +1,18 @@
 package storage;
 
-
-public class CachedBuffer {
+public class CachedBuffer implements Comparable<CachedBuffer> {
 	
 	private boolean dirt;
 	private byte[] buffer;
 	private int page;
 	private int pinCount;
+	private long timestamp;
 	
 	public CachedBuffer(byte[] data, int page) {
 		buffer = data;
 		dirt = false;
 		pinCount = 0;
+		timestamp = System.currentTimeMillis();
 	}
 
 	public byte[] getBuffer() {
@@ -43,6 +44,14 @@ public class CachedBuffer {
 
 	public int getPinCount() {
 		return pinCount;
+	}
+	
+	@Override
+	public int compareTo(CachedBuffer arg0) {
+		if (arg0 == null) {
+			throw new IllegalArgumentException("Object being compared cannot be null.");
+		}
+		return (int) (this.timestamp - arg0.timestamp);
 	}
 	
 }

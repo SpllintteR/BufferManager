@@ -34,13 +34,13 @@ public class MemoryPage
 	
 	public void loadData() throws IOException
 	{
-		data = DataFile.loadData(page);
+		data = DataFile.getInstance().loadData(page);
 	}
 	
 	public void saveData() throws IOException
 	{
 		if (dirty) {
-			DataFile.saveData(page, data);
+			DataFile.getInstance().saveData(page, data);
 		}
 	}
 	

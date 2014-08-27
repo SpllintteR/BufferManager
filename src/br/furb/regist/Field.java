@@ -1,8 +1,8 @@
 package br.furb.regist;
 
-public class Register {
+public class Field {
 	
-	private String nomeCampo;
+	private String fieldName;
 	private int size;
 	
 }

@@ -4,8 +4,8 @@ import java.util.List;
 
 public class Directory {
 	
-	private int pointerEspLivre;
-	private int quantSlots;
+	private int pointerFreeEspace;
+	private int amountSlots;
 	private List<Slot> slots;
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Table {
 	
-	private List<Register> registers;
-	private Register primaryKey;
+	private List<Field> registers;
+	private Field primaryKey;
 
 }
